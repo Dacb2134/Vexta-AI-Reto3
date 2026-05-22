@@ -68,6 +68,8 @@ Ver `notion/schema.md` para instrucciones de Notion.
 
 ## Estructura
 
+## Estructura
+
 ```
 pulseai-reto3/
 ├── backend/
@@ -78,17 +80,25 @@ pulseai-reto3/
 │   ├── models.py            # ChatRequest, ChatResponse
 │   └── requirements.txt
 ├── frontend/
-│   └── index.html           # UI completa (generada con prompt IA)
+│   ├── index.html           # Estructura HTML
+│   ├── style.css            # Sistema de diseño PulseAI
+│   ├── config.js            # URL del backend y constantes
+│   ├── components/
+│   │   ├── MessageBubble.js     # Burbujas de chat
+│   │   ├── CoverageCard.js      # Tarjeta de recomendación
+│   │   └── TypingIndicator.js   # Indicador de escritura
+│   └── services/
+│       ├── api.js           # Llamadas al backend
+│       ├── ui.js            # Renderizado del DOM
+│       └── chat.js          # Controlador principal
 ├── notion/
 │   └── schema.md            # Estructura exacta de las 3 DBs
 ├── docs/
-│   └── demo.gif
+│   └── demo.gif             # Demo del agente en acción
 ├── .env.example
 ├── .gitignore
 └── README.md
 ```
-
----
 
 ## Demo
 
