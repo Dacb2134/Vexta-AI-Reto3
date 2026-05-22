@@ -1,8 +1,7 @@
 import os
 import json
-import anthropic
-
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+import google.generativeai as genai
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 SYSTEM_PROMPT = """Eres PulseAI, un asistente experto en seguros médicos de Ecuador.
 Ayudas a los pacientes a entender su cobertura ANTES de ir al médico.
