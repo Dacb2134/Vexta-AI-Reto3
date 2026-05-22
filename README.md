@@ -32,21 +32,26 @@ con su póliza en Notion y responde en segundos con:
 
 ```bash
 # 1. Clonar
-git clone https://github.com/TU_USUARIO/pulseai-reto3.git
-cd pulseai-reto3
+git clone https://github.com/Dacb2134/Vexta-AI-Reto3.git
+cd Vexta-AI-Reto3
 
-# 2. Backend
+# 2. Entrar a backend
 cd backend
-python -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate      # Windows
-pip install -r requirements.txt
-cp ../.env.example .env
-# Editar .env con tus API keys
 
-# 3. Correr
+# 3. Crear entorno virtual con Python 3.11
+py -3.11 -m venv venv
+
+# 4. Activar entorno virtual
+venv\Scripts\activate        # Windows
+
+# 5. Instalar dependencias
+pip install -r requirements.txt
+
+# 6. Crear archivo .env (copiar el ejemplo)
+cp ../.env.example .env
+
+# 7. Correr el servidor
 uvicorn main:app --reload --port 8000
-# Docs: http://localhost:8000/docs
 ```
 
 ---
@@ -54,8 +59,8 @@ uvicorn main:app --reload --port 8000
 ## Variables de entorno
 
 ```env
-ANTHROPIC_API_KEY=sk-ant-...
-NOTION_API_KEY=secret_...
+GEMINI_API_KEY=AIzaSy...
+NOTION_API_KEY=ntn_...
 NOTION_POLICIES_DB_ID=<32 caracteres>
 NOTION_HOSPITALS_DB_ID=<32 caracteres>
 NOTION_HISTORY_DB_ID=<32 caracteres>
@@ -71,11 +76,11 @@ Ver `notion/schema.md` para instrucciones de Notion.
 ## Estructura
 
 ```
-pulseai-reto3/
+Vexta-AI-Reto3/
 ├── backend/
 │   ├── main.py              # Entry point FastAPI
 │   ├── router.py            # POST /api/chat
-│   ├── agent.py             # Prompt + Claude API
+│   ├── agent.py             # Prompt + Gemini API
 │   ├── notion_service.py    # Lee pólizas, hospitales, guarda historial
 │   ├── models.py            # ChatRequest, ChatResponse
 │   └── requirements.txt
