@@ -6,9 +6,18 @@ const UI = {
 
   // Inicializar la UI al cargar la página
   init() {
+    // ── cargar datos de la póliza desde sessionStorage ──
+    const raw = sessionStorage.getItem('policyData');
+    const policy = raw ? JSON.parse(raw).policy : {};
+
+    document.getElementById('patientName').textContent = policy.paciente || '—';
+    document.getElementById('patientId').textContent   = policy.id       || '—';
+    document.getElementById('planName').textContent    = policy.plan     || '—';
+    // ────────────────────────────────────────────────────
+
     this.renderWelcome();
     this.renderQuickButtons();
-    this.setupMobilePolicy();
+    this.setupMobilePolicy(policy);
   },
 
   renderWelcome() {
@@ -25,11 +34,11 @@ const UI = {
       .join("");
   },
 
-  setupMobilePolicy() {
+  setupMobilePolicy(policy = {}) {
     const btn = document.getElementById("mobilePolicyBtn");
     if (btn) {
       btn.addEventListener("click", () => {
-        alert(`POL-2024-001 · Ana Torres · Premium Gold\nConsulta: $25 · Especialista: $45 · Emergencia: $100`);
+        alert(`${policy.id || '—'} · ${policy.paciente || '—'} · ${policy.plan || '—'}`);
       });
     }
   },
