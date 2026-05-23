@@ -51,4 +51,15 @@ const ApiService = {
     }
     return res.json();
   },
+
+    // GET /api/history/:policy_id — historial de consultas del paciente
+  async getHistory(policyId) {
+    const res = await fetch(`${CONFIG.API_URL}/api/history/${policyId}`);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || `Error obteniendo historial`);
+    }
+    return res.json();
+  },
+  
 };

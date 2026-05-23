@@ -72,3 +72,13 @@ def login(cedula: str):
         return {"status": "found", "policy": policy}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+from notion_service import get_policy, get_policy_by_cedula, get_hospitals, save_consultation, get_history_by_policy
+
+@router.get("/history/{policy_id}")
+def get_history(policy_id: str):
+    try:
+        history = get_history_by_policy(policy_id)
+        return {"status": "ok", "history": history, "total": len(history)}
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Error consultando historial: {str(e)}")

@@ -149,6 +149,7 @@ def save_consultation(
     )
     return consultation_id
 
+# ── OBTENER PÓLIZA POR CEDULA ────────────────────────────────────────
 def get_policy_by_cedula(cedula: str) -> dict:
     results = notion.databases.query(
         database_id=POLICIES_DB,
@@ -174,3 +175,29 @@ def get_policy_by_cedula(cedula: str) -> dict:
         "fecha_inicio":       _date(p, "Fecha inicio"),
         "aseguradora":        _select(p, "Aseguradora"),
     }
+ 
+#OBTENER HISTORIAL POR PÓLIZA (CEDULA)   
+def get_history_by_policy(policy_id: str) -> list:
+    results = notion.databases.query(
+        database_id=HISTORY_DB,
+        filter={"property": "ID Póliza", "rich_text": {"equals": policy_id}}
+    )
+    
+    history = []
+    for page in results["results"]:
+        p = page["properties"]
+        history.append({
+            "consultation_id": _title(p, "Campo"),
+            "symptom":         _text(p, "Síntoma ingresado"),
+            "specialty":       _select(p, "Especialidad sugerida"),
+            "hospital":        _text(p, "Hospital recomendado"),
+            "copago":          _number(p, "Copago calculado ($)"),
+            "response":        _text(p, "Respuesta completa"),
+            "date":            _date(p, "Fecha consulta"),
+        })
+    
+    # Ordenar por fecha más reciente primero
+    history.sort(key=lambda h: h["date"] or "", reverse=True)
+    return history    
+    
+    
