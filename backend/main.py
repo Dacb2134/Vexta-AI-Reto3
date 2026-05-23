@@ -6,6 +6,8 @@ from router import router
 
 load_dotenv()
 print("NOTION KEY:", os.getenv("NOTION_API_KEY"))
+origins = os.getenv("CORS_ORIGINS", "*").split(",")
+print("CORS ORIGINS:", origins)  # ← agregar esta línea
 app = FastAPI(
     title="PulseAI — Estimador de Copago y Cobertura",
     description="Agente conversacional que cruza síntomas con pólizas para recomendar especialidad, copago y hospital.",

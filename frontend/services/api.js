@@ -1,6 +1,5 @@
 // ── SERVICIO: API ────────────────────────────────────────────────
 // Toda comunicación con el backend está aquí.
-// Para agregar un endpoint nuevo: solo agregar una función aquí.
 
 const ApiService = {
 
@@ -10,29 +9,28 @@ const ApiService = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        policy_id: (() => { const r = sessionStorage.getItem('policyData'); return r ? JSON.parse(r).policy.id : CONFIG.POLICY_ID; })(),
+        policy_id: (() => {
+          const r = sessionStorage.getItem('policyData');
+          return r ? JSON.parse(r).policy.id : CONFIG.POLICY_ID;
+        })(),
         symptom,
         history,
       }),
     });
-
     if (!res.ok) {
       const err = await res.json();
       throw new Error(err.detail || `Error ${res.status}`);
     }
-
     return res.json();
   },
 
   // GET /api/policy/:id — datos de la póliza
   async getPolicy(policyId) {
     const res = await fetch(`${CONFIG.API_URL}/api/policy/${policyId}`);
-
     if (!res.ok) {
       const err = await res.json();
       throw new Error(err.detail || `Error ${res.status}`);
     }
-
     return res.json();
   },
 
@@ -42,7 +40,7 @@ const ApiService = {
     return res.ok;
   },
 
-    // GET /api/login/:cedula — login por cédula
+  // GET /api/login/:cedula — login por cédula
   async login(cedula) {
     const res = await fetch(`${CONFIG.API_URL}/api/login/${cedula}`);
     if (!res.ok) {
@@ -52,7 +50,7 @@ const ApiService = {
     return res.json();
   },
 
-    // GET /api/history/:policy_id — historial de consultas del paciente
+  // GET /api/history/:policy_id — historial de consultas del paciente
   async getHistory(policyId) {
     const res = await fetch(`${CONFIG.API_URL}/api/history/${policyId}`);
     if (!res.ok) {
@@ -61,5 +59,17 @@ const ApiService = {
     }
     return res.json();
   },
-  
+
+  // DELETE /api/history/:consultation_id — eliminar una consulta
+  async deleteHistory(consultationId) {
+    const res = await fetch(`${CONFIG.API_URL}/api/history/${consultationId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || `Error eliminando consulta`);
+    }
+    return res.json();
+  },
+
 };
