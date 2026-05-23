@@ -4,8 +4,9 @@ import google.generativeai as genai
 
 # ── CONFIGURACIÓN GEMINI ─────────────────────────────────────────
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-2.5-flash",
     system_instruction="""Eres PulseAI, un asistente experto en seguros médicos de Ecuador.
 Ayudas a los pacientes a entender su cobertura ANTES de ir al médico.
 Siempre respondes en español, con tono cálido, claro y empático.

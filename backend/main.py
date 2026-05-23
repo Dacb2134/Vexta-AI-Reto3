@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from router import router
 
 load_dotenv()
-
+print("NOTION KEY:", os.getenv("NOTION_API_KEY"))
 app = FastAPI(
     title="PulseAI — Estimador de Copago y Cobertura",
     description="Agente conversacional que cruza síntomas con pólizas para recomendar especialidad, copago y hospital.",
