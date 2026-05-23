@@ -56,6 +56,7 @@ def get_policy(policy_id: str) -> dict:
 
     p = results["results"][0]["properties"]
     return {
+        "poliza":             _title(p, "Póliza"), 
         "id":                 _text(p, "ID Póliza"),
         "paciente":           _text(p, "Nombre paciente"),
         "cedula":             _text(p, "Cédula"),
@@ -67,9 +68,9 @@ def get_policy(policy_id: str) -> dict:
         "deducible":          _number(p, "Deducible anual ($)"),
         "limite_anual":       _number(p, "Límite anual ($)"),
         "estado":             _select(p, "Estado"),
+        "fecha_inicio":       _date(p, "Fecha inicio"), 
         "aseguradora":        _select(p, "Aseguradora"),
     }
-
 
 # ── LEER HOSPITALES ───────────────────────────────────────────────
 
@@ -77,35 +78,48 @@ def get_hospitals(plan: str, specialty: str = None) -> list:
     """
     Retorna hospitales que aceptan el plan del paciente.
     Si se pasa specialty, filtra los que atienden esa especialidad.
+    Maneja paginación para bases de datos con más de 100 registros.
     """
-    results = notion.databases.query(database_id=HOSPITALS_DB)
     hospitals = []
+    has_more = True
+    start_cursor = None
 
-    for page in results["results"]:
-        p = page["properties"]
-        planes     = _multi(p, "Planes aceptados")
-        especialidades = _multi(p, "Especialidades")
+    while has_more:
+        results = notion.databases.query(
+            database_id=HOSPITALS_DB,
+            start_cursor=start_cursor,
+            page_size=100
+        )
 
-        if plan not in planes:
-            continue
-        if specialty and specialty not in especialidades:
-            continue
+        for page in results["results"]:
+            p = page["properties"]
+            planes         = _multi(p, "Planes aceptados")
+            especialidades = _multi(p, "Especialidades")
 
-        hospitals.append({
-            "nombre":         _title(p, "Nombre"),
-            "especialidades": especialidades,
-            "planes":         planes,
-            "costo_consulta": _number(p, "Costo consulta ($)"),
-            "costo_especialista": _number(p, "Costo especialista ($)"),
-            "direccion":      _text(p, "Dirección"),
-            "telefono":       _text(p, "Teléfono"),
-            "calificacion":   _number(p, "Calificación"),
-        })
+            if plan not in planes:
+                continue
+            if specialty and specialty not in especialidades:
+                continue
+
+            hospitals.append({
+                "campo":              _title(p, "Campo"),
+                "nombre":             _text(p, "Nombre"), 
+                "ciudad":             _select(p, "Ciudad"), 
+                "especialidades":     especialidades,
+                "planes":             planes,
+                "costo_consulta":     _number(p, "Costo consulta ($)"),
+                "costo_especialista": _number(p, "Costo especialista ($)"),
+                "direccion":          _text(p, "Dirección"),
+                "telefono":           _text(p, "Teléfono"),
+                "calificacion":       _number(p, "Calificación"),
+            })
+
+        has_more = results.get("has_more", False)
+        start_cursor = results.get("next_cursor", None)
 
     # Ordenar por menor costo de especialista
     hospitals.sort(key=lambda h: h["costo_especialista"])
     return hospitals
-
 
 # ── GUARDAR EN HISTORIAL ─────────────────────────────────────────
 
@@ -123,14 +137,40 @@ def save_consultation(
     notion.pages.create(
         parent={"database_id": HISTORY_DB},
         properties={
-            "ID Consulta":          {"title": [{"text": {"content": consultation_id}}]},
+            "Campo":                {"title": [{"text": {"content": consultation_id}}]},
+            "ID Consulta":          {"rich_text": [{"text": {"content": consultation_id}}]},
             "ID Póliza":            {"rich_text": [{"text": {"content": policy_id}}]},
             "Síntoma ingresado":    {"rich_text": [{"text": {"content": symptom}}]},
             "Especialidad sugerida":{"select": {"name": specialty or "General"}},
             "Hospital recomendado": {"rich_text": [{"text": {"content": hospital or ""}}]},
             "Copago calculado ($)": {"number": copago or 0},
-            "Respuesta completa":   {"rich_text": [{"text": {"content": full_response[:2000]}}]},
-            "Fecha consulta":       {"date": {"start": now.isoformat()}},
+            "Respuesta completa":   {"rich_text": [{"text": {"content": full_response[:2000]}}]}
         }
     )
     return consultation_id
+
+def get_policy_by_cedula(cedula: str) -> dict:
+    results = notion.databases.query(
+        database_id=POLICIES_DB,
+        filter={"property": "Cédula", "rich_text": {"equals": cedula}}
+    )
+    if not results["results"]:
+        raise ValueError(f"No se encontró póliza para la cédula '{cedula}'.")
+
+    p = results["results"][0]["properties"]
+    return {
+        "poliza":             _title(p, "Póliza"),
+        "id":                 _text(p, "ID Póliza"),
+        "paciente":           _text(p, "Nombre paciente"),
+        "cedula":             _text(p, "Cédula"),
+        "plan":               _select(p, "Plan"),
+        "coberturas":         _multi(p, "Coberturas activas"),
+        "copago_consulta":    _number(p, "Copago consulta ($)"),
+        "copago_especialista":_number(p, "Copago especialista ($)"),
+        "copago_emergencia":  _number(p, "Copago emergencia ($)"),
+        "deducible":          _number(p, "Deducible anual ($)"),
+        "limite_anual":       _number(p, "Límite anual ($)"),
+        "estado":             _select(p, "Estado"),
+        "fecha_inicio":       _date(p, "Fecha inicio"),
+        "aseguradora":        _select(p, "Aseguradora"),
+    }

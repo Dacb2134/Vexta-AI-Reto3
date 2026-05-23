@@ -41,4 +41,14 @@ const ApiService = {
     const res = await fetch(`${CONFIG.API_URL}/health`);
     return res.ok;
   },
+
+    // GET /api/login/:cedula — login por cédula
+  async login(cedula) {
+    const res = await fetch(`${CONFIG.API_URL}/api/login/${cedula}`);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || `Cédula no encontrada`);
+    }
+    return res.json();
+  },
 };

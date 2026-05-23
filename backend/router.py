@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from models import ChatRequest, ChatResponse
 from notion_service import get_policy, get_hospitals, save_consultation
+from notion_service import get_policy, get_policy_by_cedula, get_hospitals, save_consultation
 from agent import analyze
 
 router = APIRouter()
@@ -60,6 +61,14 @@ def chat(req: ChatRequest):
 def get_policy_info(policy_id: str):
     try:
         policy = get_policy(policy_id)
+        return {"status": "found", "policy": policy}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/login/{cedula}")
+def login(cedula: str):
+    try:
+        policy = get_policy_by_cedula(cedula)
         return {"status": "found", "policy": policy}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
