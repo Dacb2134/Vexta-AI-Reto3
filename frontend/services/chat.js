@@ -22,6 +22,31 @@ const Chat = {
       });
   },
 
+  // Cargar conversación anterior desde el historial
+  loadConversation(item) {
+    document.getElementById("messages").innerHTML = "";
+    this.history = [];
+
+    UI.addUserMessage(item.symptom);
+    this.history.push({ role: "user", content: item.symptom });
+
+    const data = {
+      full_response:   item.response || "(Sin respuesta guardada)",
+      specialty:       item.specialty  || null,
+      copago:          item.copago     ? `$${item.copago}` : null,
+      hospital:        item.hospital   || null,
+      address:         null,
+      phone:           null,
+      next_step:       null,
+      consultation_id: item.consultation_id,
+    };
+    const card = CoverageCard.render(data);
+    document.getElementById("messages")
+      .insertAdjacentHTML("beforeend", MessageBubble.bot(data.full_response, card));
+    scrollBottom();
+    this.history.push({ role: "assistant", content: item.response || "" });
+  },
+
   // Enviar desde los botones de preguntas frecuentes
   sendQuick(text) {
     document.getElementById("msgInput").value = text;
