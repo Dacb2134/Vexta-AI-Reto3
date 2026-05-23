@@ -18,27 +18,47 @@
 
     <div class="sidebar-section">
       <p class="sidebar-label">Mi cobertura</p>
-      <p class="patient-name" id="patientName">Ana Torres</p>
-      <p class="patient-id"   id="patientId">POL-2024-001</p>
-      <span class="status-badge">
-        <span class="status-dot"></span>Póliza activa
-      </span>
+      <p class="patient-name" id="patientName"><span class="skeleton sk-line"></span></p>
+      <p class="patient-id"   id="patientId"><span class="skeleton sk-line-sm"></span></p>
+
+      <div class="status-row">
+        <span class="status-badge" id="statusBadge">
+          <span class="status-dot"></span>Cargando…
+        </span>
+        <span class="aseguradora-badge" id="aseguradoraBadge" style="display:none"></span>
+      </div>
+
       <p class="plan-label">Plan</p>
-      <p class="plan-name" id="planName">Premium Gold</p>
+      <p class="plan-name" id="planName"><span class="skeleton sk-line-sm"></span></p>
+
       <div class="copago-chips">
         <div class="copago-chip">
           <span class="chip-label">Consulta general</span>
-          <span class="chip-value green" id="copagoConsulta">$25</span>
+          <span class="chip-value green" id="copagoConsulta">—</span>
         </div>
         <div class="copago-chip">
           <span class="chip-label">Especialista</span>
-          <span class="chip-value green" id="copagoEspec">$45</span>
+          <span class="chip-value green" id="copagoEspec">—</span>
         </div>
         <div class="copago-chip">
           <span class="chip-label">Emergencia</span>
-          <span class="chip-value" id="copagoEmerg">$100</span>
+          <span class="chip-value orange" id="copagoEmerg">—</span>
+        </div>
+        <div class="copago-chip">
+          <span class="chip-label">Deducible anual</span>
+          <span class="chip-value muted" id="deducible">—</span>
         </div>
       </div>
+    </div>
+
+    <div class="sidebar-section" id="coberturasSection" style="display:none">
+      <p class="sidebar-label">Coberturas activas</p>
+      <div class="coverage-tags" id="coverageTags"></div>
+    </div>
+
+    <div class="sidebar-section" id="historialSection" style="display:none">
+      <p class="sidebar-label">Consultas anteriores</p>
+      <div class="history-list" id="historyList"></div>
     </div>
 
     <div class="sidebar-section">
@@ -49,7 +69,10 @@
     </div>
 
     <div class="sidebar-footer">
-      <p>Datos sincronizados con Notion</p>
+      <div class="footer-status" id="footerStatus">
+        <span class="footer-dot loading"></span>
+        <p>Conectando con Notion…</p>
+      </div>
       <!-- ══ BOTÓN CERRAR SESIÓN ══ -->
       <button class="logout-btn" id="logoutBtn">⏻ Cerrar sesión</button>
     </div>
@@ -68,14 +91,23 @@
     <!-- header del chat -->
     <div class="chat-header">
       <div class="chat-header-left">
+        <button class="sidebar-toggle" id="sidebarToggle" title="Ocultar panel">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
         <div class="agent-avatar">◎</div>
         <div>
           <div class="agent-name">PulseAI</div>
           <div class="agent-sub">Asistente de cobertura médica</div>
         </div>
       </div>
-      <div class="online-badge">
-        <span class="online-dot"></span>En línea
+      <div class="header-right">
+        <div class="online-badge">
+          <span class="online-dot"></span>En línea
+        </div>
+        <button class="clear-btn" id="clearBtn" title="Nueva consulta">
+          <svg viewBox="0 0 24 24" width="14" height="14"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Nueva consulta
+        </button>
       </div>
     </div>
 
@@ -161,6 +193,17 @@
     document.getElementById('btnSalir').addEventListener('click', logout);
 
     resetTimer();
+
+    // ── SIDEBAR TOGGLE ─────────────────────────────────────────
+    const sidebar = document.querySelector('.sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      sidebar.classList.add('collapsed');
+    }
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    });
   });
 </script>
 </body>

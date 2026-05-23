@@ -10,7 +10,7 @@ const ApiService = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        policy_id: CONFIG.POLICY_ID,
+        policy_id: (() => { const r = sessionStorage.getItem('policyData'); return r ? JSON.parse(r).policy.id : CONFIG.POLICY_ID; })(),
         symptom,
         history,
       }),
