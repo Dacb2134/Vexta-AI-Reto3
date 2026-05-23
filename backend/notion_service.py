@@ -1,7 +1,16 @@
 import os
 from datetime import datetime
 from notion_client import Client
+from dotenv import load_dotenv
 
+load_dotenv()
+
+print("=== DEBUG NOTION ===")
+print("KEY:", os.getenv("NOTION_API_KEY"))
+print("POLICIES_DB:", os.getenv("NOTION_POLICIES_DB_ID"))
+print("HOSPITALS_DB:", os.getenv("NOTION_HOSPITALS_DB_ID"))
+print("HISTORY_DB:", os.getenv("NOTION_HISTORY_DB_ID"))
+print("===================")
 notion = Client(auth=os.getenv("NOTION_API_KEY"))
 
 POLICIES_DB   = os.getenv("NOTION_POLICIES_DB_ID")
@@ -40,14 +49,14 @@ def _date(props, key):
 def get_policy(policy_id: str) -> dict:
     results = notion.databases.query(
         database_id=POLICIES_DB,
-        filter={"property": "ID Póliza", "title": {"equals": policy_id}}
+        filter={"property": "ID Póliza", "rich_text": {"equals": policy_id}}
     )
     if not results["results"]:
         raise ValueError(f"Póliza '{policy_id}' no encontrada.")
 
     p = results["results"][0]["properties"]
     return {
-        "id":                 _title(p, "ID Póliza"),
+        "id":                 _text(p, "ID Póliza"),
         "paciente":           _text(p, "Nombre paciente"),
         "cedula":             _text(p, "Cédula"),
         "plan":               _select(p, "Plan"),
