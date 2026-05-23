@@ -262,3 +262,64 @@ html, body {
   }
 }
 @media (min-width: 641px) { .mobile-bar { display: none; } }
+
+/* ══ CERRAR SESIÓN ══ */
+.logout-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.logout-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+/* ══ MODAL INACTIVIDAD ══ */
+.inactivity-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+.inactivity-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+}
+.inactivity-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.inactivity-modal h2 { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; color: #1a1a2e; }
+.inactivity-modal p  { font-size: 0.9rem; color: #6b7280; margin-bottom: 1.5rem; }
+.inactivity-btns { display: flex; gap: 10px; justify-content: center; }
+.btn-continuar {
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-continuar:hover { opacity: 0.88; }
+.btn-salir {
+  padding: 10px 20px;
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-salir:hover { background: #f9fafb; }
