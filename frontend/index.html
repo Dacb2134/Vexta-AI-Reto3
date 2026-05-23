@@ -129,7 +129,6 @@
 <script src="services/chat.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    UI.init();
 
     // ── CERRAR SESIÓN ──────────────────────────────────
     function logout() {
@@ -139,32 +138,29 @@
     document.getElementById('logoutBtn').addEventListener('click', logout);
 
     // ── INACTIVIDAD ────────────────────────────────────
-    const TIMEOUT = 15000; // 15 segundos
+    const TIMEOUT = 20000;
     let timer;
     const overlay = document.getElementById('inactivityOverlay');
 
     function resetTimer() {
-  // Si el modal está visible, no hacer nada
-  if (overlay.style.display === 'flex') return;
+      if (overlay.style.display === 'flex') return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        overlay.style.display = 'flex';
+      }, TIMEOUT);
+    }
 
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    overlay.style.display = 'flex';
-  }, TIMEOUT);
-}
-
-    // Detectar cualquier actividad del usuario
     ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'].forEach(evt => {
       document.addEventListener(evt, resetTimer);
     });
 
-document.getElementById('btnContinuar').addEventListener('click', () => {
-  overlay.style.display = 'none';
-  resetTimer();
-});
+    document.getElementById('btnContinuar').addEventListener('click', () => {
+      overlay.style.display = 'none';
+      resetTimer();
+    });
     document.getElementById('btnSalir').addEventListener('click', logout);
 
-    resetTimer(); // arrancar el timer
+    resetTimer();
   });
 </script>
 </body>
