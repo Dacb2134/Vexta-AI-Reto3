@@ -8,17 +8,20 @@ class Message(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    policy_id: str                        # Ej: POL-2024-001
-    symptom: str                          # Lo que escribe el paciente
-    history: Optional[List[Message]] = [] # Historial de la conversación
+    policy_id: str                         
+    symptom: str                           
+    history: Optional[List[Message]] = []  
 
 
 class ChatResponse(BaseModel):
-    full_response: str           # Respuesta en lenguaje natural
-    specialty: Optional[str]     # Cardiología, Traumatología, etc.
-    copago: Optional[str]        # "$45"
-    hospital: Optional[str]      # Hospital Metropolitano
-    address: Optional[str]       # Dirección del hospital
-    phone: Optional[str]         # Teléfono
-    next_step: Optional[str]     # Acción recomendada
-    consultation_id: str         # ID guardado en Notion
+    full_response: str
+    specialty: Optional[str]       = None
+    copago: Optional[str]          = None
+    hospital: Optional[str]        = None
+    address: Optional[str]         = None
+    phone: Optional[str]           = None
+    next_step: Optional[str]       = None
+    consultation_id: str
+    needs_more_info: Optional[bool]       = False
+    recommendations: Optional[List[str]]  = []
+    urgency_level: Optional[str]          = "low"

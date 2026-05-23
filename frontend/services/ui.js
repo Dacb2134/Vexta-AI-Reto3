@@ -1,12 +1,11 @@
 // ── SERVICIO: UI ─────────────────────────────────────────────────
 // Todo lo que toca el DOM está aquí.
-// Chat.js llama a UI, UI llama a los componentes.
 
 const UI = {
   _policy: null,
 
   init() {
-    const raw = sessionStorage.getItem('policyData');
+    const raw    = sessionStorage.getItem('policyData');
     const policy = raw ? JSON.parse(raw).policy : {};
     this._policy = policy;
 
@@ -26,7 +25,6 @@ const UI = {
       this.populateSidebar(data.policy);
     } catch (err) {
       this.setFooterStatus("error", "Error al conectar con Notion");
-      // Fallback: mostrar el ID de config al menos
       document.getElementById("patientId").textContent = CONFIG.POLICY_ID;
     }
   },
@@ -41,20 +39,17 @@ const UI = {
     document.getElementById("copagoEmerg").textContent    = `$${policy.copago_emergencia ?? "—"}`;
     document.getElementById("deducible").textContent      = policy.deducible ? `$${policy.deducible}` : "—";
 
-    // Badge de estado
-    const badge   = document.getElementById("statusBadge");
-    const active  = policy.estado === "Activa";
+    const badge  = document.getElementById("statusBadge");
+    const active = policy.estado === "Activa";
     badge.className = `status-badge${active ? "" : " inactive"}`;
     badge.innerHTML = `<span class="status-dot"></span>${esc(policy.estado || "Desconocido")}`;
 
-    // Aseguradora
     const asegEl = document.getElementById("aseguradoraBadge");
     if (policy.aseguradora) {
-      asegEl.textContent     = policy.aseguradora;
-      asegEl.style.display   = "inline-block";
+      asegEl.textContent   = policy.aseguradora;
+      asegEl.style.display = "inline-block";
     }
 
-    // Coberturas activas
     if (policy.coberturas && policy.coberturas.length > 0) {
       document.getElementById("coverageTags").innerHTML = policy.coberturas
         .map(c => `<span class="coverage-tag">${esc(c)}</span>`)
@@ -72,6 +67,9 @@ const UI = {
       const data = await ApiService.getHistory(policyId);
       if (data.history && data.history.length > 0) {
         this.renderHistory(data.history);
+      } else {
+        // Ocultar sección si no hay historial
+        document.getElementById("historialSection").style.display = "none";
       }
     } catch (err) {
       // si falla el historial no bloqueamos nada
@@ -82,7 +80,6 @@ const UI = {
     const section = document.getElementById("historialSection");
     const list    = document.getElementById("historyList");
 
-    // Extraer fecha del consultation_id si el campo date viene vacío
     function parseFecha(h) {
       if (h.date) return new Date(h.date);
       const m = (h.consultation_id || "").match(/CONS-(\d{4})(\d{2})(\d{2})/);
@@ -99,10 +96,8 @@ const UI = {
       return "Anteriores";
     }
 
-    // Guardar items para acceder desde onclick
     this._historyItems = items;
 
-    // Agrupar por fecha
     const grupos = {};
     items.slice(0, 20).forEach((h, i) => {
       const fecha = parseFecha(h);
@@ -117,13 +112,60 @@ const UI = {
       .map(g => `
         <div class="history-group-label">${g}</div>
         ${grupos[g].map(h => `
-          <div class="history-item" onclick="Chat.loadConversation(UI._historyItems[${h._idx}])">
-            <span class="history-symptom">${esc(h.symptom)}</span>
-            <span class="history-specialty">${esc(h.specialty || "")}</span>
+          <div class="history-item" id="hist-${esc(h.consultation_id)}">
+            <div class="history-item-content" onclick="Chat.loadConversation(UI._historyItems[${h._idx}])">
+              <span class="history-symptom">${esc(h.symptom)}</span>
+              <span class="history-specialty">${esc(h.specialty || "")}</span>
+            </div>
+            <button
+              class="history-delete-btn"
+              title="Eliminar consulta"
+              onclick="UI.deleteHistoryItem('${esc(h.consultation_id)}', event)"
+            >✕</button>
           </div>`).join("")}
       `).join("");
 
     section.style.display = "block";
+  },
+
+  // ── Eliminar consulta del historial ──────────────────────────
+  async deleteHistoryItem(consultationId, event) {
+    // Evitar que el clic abra la conversación
+    event.stopPropagation();
+
+    const item = document.getElementById(`hist-${consultationId}`);
+    if (!item) return;
+
+    // Deshabilitar botón para evitar doble clic
+    const btn = item.querySelector(".history-delete-btn");
+    if (btn) btn.disabled = true;
+
+    try {
+      await ApiService.deleteHistory(consultationId);
+
+      // Animación de salida
+      item.style.transition = "opacity 0.2s, transform 0.2s";
+      item.style.opacity    = "0";
+      item.style.transform  = "translateX(-10px)";
+
+      setTimeout(() => {
+        item.remove();
+
+        // Si no quedan items, ocultar la sección
+        const list = document.getElementById("historyList");
+        if (!list.querySelector(".history-item")) {
+          document.getElementById("historialSection").style.display = "none";
+        }
+      }, 200);
+
+    } catch (err) {
+      if (btn) btn.disabled = false;
+      // Mostrar error sutil sin bloquear el flujo
+      if (btn) {
+        btn.textContent = "!";
+        setTimeout(() => { btn.textContent = "✕"; }, 2000);
+      }
+    }
   },
 
   setFooterStatus(type, text) {

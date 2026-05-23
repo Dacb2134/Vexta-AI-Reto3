@@ -1,7 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from models import ChatRequest, ChatResponse
-from notion_service import get_policy, get_hospitals, save_consultation
-from notion_service import get_policy, get_policy_by_cedula, get_hospitals, save_consultation
+from notion_service import (
+    get_policy,
+    get_policy_by_cedula,
+    get_hospitals,
+    save_consultation,
+    get_history_by_policy,
+    delete_consultation,
+)
 from agent import analyze
 
 router = APIRouter()
@@ -26,34 +32,48 @@ def chat(req: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Error leyendo hospitales: {str(e)}")
 
-    # 3. Analizar con Claude
+    # 3. Analizar con Gemini
     try:
         result = analyze(policy, hospitals, req.symptom, req.history or [])
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error en el agente: {str(e)}")
 
-    # 4. Guardar en Notion historial
+    # 4. Normalizar copago — Gemini a veces devuelve número en lugar de string
+    copago_raw = result.get("copago")
+    if isinstance(copago_raw, (int, float)):
+        copago_str = f"${int(copago_raw)}"
+    elif isinstance(copago_raw, str):
+        copago_str = copago_raw
+    else:
+        copago_str = None
+
+    # 5. Guardar en Notion historial
     try:
+        copago_num = float(str(copago_str or "0").replace("$", "").strip() or 0)
         consultation_id = save_consultation(
             policy_id=req.policy_id,
             symptom=req.symptom,
-            specialty=result.get("specialty", "General"),
-            hospital=result.get("hospital", ""),
-            copago=float(result.get("copago", "$0").replace("$", "") or 0),
-            full_response=result.get("full_response", ""),
+            specialty=result.get("specialty") or "General",
+            hospital=result.get("hospital") or "",
+            copago=copago_num,
+            full_response=result.get("full_response") or "",
         )
     except Exception:
         consultation_id = f"LOCAL-{req.policy_id}"
 
+    # 6. Retornar respuesta
     return ChatResponse(
-        full_response=result.get("full_response", ""),
+        full_response=result.get("full_response") or "",
         specialty=result.get("specialty"),
-        copago=result.get("copago"),
+        copago=copago_str,
         hospital=result.get("hospital"),
         address=result.get("address"),
         phone=result.get("phone"),
         next_step=result.get("next_step"),
         consultation_id=consultation_id,
+        needs_more_info=result.get("needs_more_info", False),
+        recommendations=result.get("recommendations") or [],
+        urgency_level=result.get("urgency_level") or "low",
     )
 
 
@@ -65,6 +85,7 @@ def get_policy_info(policy_id: str):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
 @router.get("/login/{cedula}")
 def login(cedula: str):
     try:
@@ -73,7 +94,6 @@ def login(cedula: str):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-from notion_service import get_policy, get_policy_by_cedula, get_hospitals, save_consultation, get_history_by_policy
 
 @router.get("/history/{policy_id}")
 def get_history(policy_id: str):
@@ -82,3 +102,15 @@ def get_history(policy_id: str):
         return {"status": "ok", "history": history, "total": len(history)}
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Error consultando historial: {str(e)}")
+
+
+@router.delete("/history/{consultation_id}")
+def delete_history_item(consultation_id: str):
+    """Elimina una consulta específica del historial en Notion."""
+    try:
+        delete_consultation(consultation_id)
+        return {"status": "deleted", "consultation_id": consultation_id}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Error eliminando consulta: {str(e)}")

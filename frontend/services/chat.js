@@ -1,6 +1,5 @@
 // ── SERVICIO: Chat ───────────────────────────────────────────────
 // Controlador principal. Conecta UI ↔ API.
-// Aquí vive la lógica del chat: historial, envío, recepción.
 
 const Chat = {
   history:   [],
@@ -8,11 +7,9 @@ const Chat = {
 
   // Inicializar eventos al cargar la página
   init() {
-    // Botón enviar
     document.getElementById("sendBtn")
       .addEventListener("click", () => this.send());
 
-    // Enter para enviar
     document.getElementById("msgInput")
       .addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -39,7 +36,12 @@ const Chat = {
       phone:           null,
       next_step:       null,
       consultation_id: item.consultation_id,
+      needs_more_info: false,   // historial ya tiene recomendación completa
+      recommendations: [],
+      urgency_level:   "low",
     };
+
+    // Solo mostrar tarjeta si tiene datos completos
     const card = CoverageCard.render(data);
     document.getElementById("messages")
       .insertAdjacentHTML("beforeend", MessageBubble.bot(data.full_response, card));
@@ -60,15 +62,13 @@ const Chat = {
 
     if (!text || this.isLoading) return;
 
-    input.value = "";
+    input.value    = "";
     this.isLoading = true;
     UI.setLoading(true);
 
-    // Mostrar burbuja del usuario inmediatamente
     UI.addUserMessage(text);
     this.history.push({ role: "user", content: text });
 
-    // Mostrar typing indicator
     TypingIndicator.show();
 
     try {

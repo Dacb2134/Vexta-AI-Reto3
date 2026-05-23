@@ -199,5 +199,24 @@ def get_history_by_policy(policy_id: str) -> list:
     # Ordenar por fecha más reciente primero
     history.sort(key=lambda h: h["date"] or "", reverse=True)
     return history    
-    
+
+# ── ELIMINAR CONSULTA DEL HISTORIAL ─────────────────────────────
+
+def delete_consultation(consultation_id: str) -> None:
+    """
+    Busca la consulta por su ID en la DB de historial y la archiva en Notion.
+    Notion no permite borrado permanente via API — archivar es equivalente.
+    """
+    results = notion.databases.query(
+        database_id=HISTORY_DB,
+        filter={"property": "Campo", "title": {"equals": consultation_id}}
+    )
+
+    if not results["results"]:
+        raise ValueError(f"Consulta '{consultation_id}' no encontrada.")
+
+    page_id = results["results"][0]["id"]
+
+    # Archivar la página (equivalente a eliminar en Notion API)
+    notion.pages.update(page_id=page_id, archived=True)   
     
