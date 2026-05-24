@@ -1,10 +1,6 @@
-// ── CONFIGURACIÓN GLOBAL ─────────────────────────────────────────
-// Persona C: cambia API_URL por la URL de Railway cuando hagas deploy
-
 const CONFIG = {
-  API_URL:   "http://127.0.0.1:8000",   // ← cambiar a URL Railway en producción
-  POLICY_ID: "POL-2024-001",             // ← ID de la póliza de demo
-
+  API_URL: "https://vexta-ai-reto3-production.up.railway.app",
+  POLICY_ID: "POL-2024-001",
   QUICK_QUESTIONS: [
     "Me duele el pecho",
     "Tengo fiebre alta hace 3 días",
