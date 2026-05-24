@@ -1,17 +1,18 @@
 # ◎ PulseAI — Estimador de Copago y Cobertura
 
-> **hackIAthon VIAMATICA 2024 · Reto 3**
-> Agente conversacional que ayuda al paciente a entender su cobertura antes de atenderse.
+> **hackIAthon VIAMATICA 2024 · Reto 3**  
+> Agente conversacional que ayuda al paciente a entender su cobertura médica antes de atenderse.
 
 ---
 
 ## ¿Qué hace?
 
-El paciente describe su síntoma en lenguaje natural. PulseAI cruza esa información
-con su póliza en Notion y responde en segundos con:
-- La **especialidad médica** recomendada
-- El **copago exacto** según su plan
+El paciente ingresa su cédula y describe su síntoma en lenguaje natural. PulseAI cruza esa información con su póliza en Notion y responde en segundos con:
+
+- La **especialidad médica** recomendada según el síntoma
+- El **copago exacto** según su plan de seguro
 - El **hospital más conveniente** de la red
+- El **historial** de consultas anteriores
 
 ---
 
@@ -19,12 +20,19 @@ con su póliza en Notion y responde en segundos con:
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend | HTML + CSS + JS puro |
-| Backend | Python 3.11 + FastAPI |
-| Agente IA | Claude API (claude-sonnet-4) |
+| Frontend | HTML + CSS + JS puro (MVC) |
+| Backend | Python + FastAPI |
+| Agente IA | Google Gemini 2.5 Flash |
 | Base de datos | Notion API (3 tablas) |
 | Deploy backend | Railway |
 | Deploy frontend | Vercel |
+
+---
+
+## Links
+
+🔗 **Agente en vivo:** https://vexta-ai-reto3.vercel.app  
+📁 **Repositorio:** https://github.com/Dacb2134/Vexta-AI-Reto3
 
 ---
 
@@ -38,20 +46,23 @@ cd Vexta-AI-Reto3
 # 2. Entrar a backend
 cd backend
 
-# 3. Crear entorno virtual con Python 3.11
-py -3.11 -m venv venv
+# 3. Crear entorno virtual
+python -m venv venv
 
 # 4. Activar entorno virtual
 venv\Scripts\activate        # Windows
+source venv/bin/activate     # Mac/Linux
 
 # 5. Instalar dependencias
 pip install -r requirements.txt
 
-# 6. Crear archivo .env (copiar el ejemplo)
+# 6. Crear archivo .env
 cp ../.env.example .env
+# Editar .env con tus API keys
 
 # 7. Correr el servidor
 uvicorn main:app --reload --port 8000
+# Docs: http://localhost:8000/docs
 ```
 
 ---
@@ -64,28 +75,26 @@ NOTION_API_KEY=ntn_...
 NOTION_POLICIES_DB_ID=<32 caracteres>
 NOTION_HOSPITALS_DB_ID=<32 caracteres>
 NOTION_HISTORY_DB_ID=<32 caracteres>
-CORS_ORIGINS=http://127.0.0.1:5500,https://tu-app.vercel.app
+CORS_ORIGINS=http://127.0.0.1:5500,https://vexta-ai-reto3.vercel.app
 ```
-
-Ver `notion/schema.md` para instrucciones de Notion.
 
 ---
 
-## Estructura
-
-## Estructura
+## Estructura del proyecto
 
 ```
 Vexta-AI-Reto3/
 ├── backend/
 │   ├── main.py              # Entry point FastAPI
-│   ├── router.py            # POST /api/chat
+│   ├── router.py            # Endpoints REST
 │   ├── agent.py             # Prompt + Gemini API
-│   ├── notion_service.py    # Lee pólizas, hospitales, guarda historial
+│   ├── notion_service.py    # Pólizas, hospitales, historial
 │   ├── models.py            # ChatRequest, ChatResponse
 │   └── requirements.txt
 ├── frontend/
-│   ├── index.html           # Estructura HTML
+│   ├── login.html           # Pantalla de login por cédula
+│   ├── login.css            # Estilos del login
+│   ├── index.html           # Chat principal
 │   ├── style.css            # Sistema de diseño PulseAI
 │   ├── config.js            # URL del backend y constantes
 │   ├── components/
@@ -96,35 +105,35 @@ Vexta-AI-Reto3/
 │       ├── api.js           # Llamadas al backend
 │       ├── ui.js            # Renderizado del DOM
 │       └── chat.js          # Controlador principal
-├── notion/
-│   └── schema.md            # Estructura exacta de las 3 DBs
-├── docs/
-│   └── demo.gif             # Demo del agente en acción
 ├── .env.example
 ├── .gitignore
+├── runtime.txt
 └── README.md
 ```
 
-## Demo
+---
 
-> *[Agregar GIF aquí]*
+## Endpoints API
 
-Casos de prueba:
-- `POL-2024-001` + "me duele el pecho" → Cardiología · $45 · Hospital Metropolitano
-- `POL-2024-002` + "me lesioné la rodilla" → Traumatología · $65 · Hospital de los Valles
-- `POL-2024-003` + "tengo fiebre" → Medicina General · $50 · Hospital Vozandes
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| `GET` | `/health` | Estado del servidor |
+| `GET` | `/api/login/{cedula}` | Login por cédula |
+| `POST` | `/api/chat` | Consulta al agente IA |
+| `GET` | `/api/policy/{id}` | Datos de la póliza |
+| `GET` | `/api/history/{policy_id}` | Historial de consultas |
+| `DELETE` | `/api/history/{consultation_id}` | Eliminar consulta |
 
 ---
 
-## Equipo
+## Equipo — Vexta AI
 
 | Nombre | Rol |
 |--------|-----|
-| [Persona A] | Notion + Datos + README |
-| [Persona B] | Frontend + Deploy Vercel |
-| [Persona C] | Backend + Agente + Deploy Railway |
+| Diego Antonio Constante Benavides | Backend + Agente IA + Deploy Railway |
+| Michelle Pierina Pin Colorado | Notion + Base de datos + Frontend |
+| Darlan Garcés Marín | Frontend + Deploy Vercel |
 
 ---
 
-🔗 **Agente en vivo:** [URL Vercel]
-📁 **Repositorio:** [URL GitHub]
+*hackIAthon VIAMATICA  · Equipo Vexta AI*
