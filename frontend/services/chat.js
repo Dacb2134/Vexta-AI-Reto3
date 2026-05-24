@@ -66,6 +66,10 @@ const Chat = {
     this.isLoading = true;
     UI.setLoading(true);
 
+    // Ocultar chips de sugerencias al enviar el primer mensaje
+    const suggestions = document.getElementById("quickSuggestions");
+    if (suggestions) suggestions.remove();
+
     UI.addUserMessage(text);
     this.history.push({ role: "user", content: text });
 

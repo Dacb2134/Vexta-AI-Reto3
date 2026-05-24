@@ -9,6 +9,9 @@
 <body>
 <div class="app">
 
+  <!-- ══ BACKDROP MÓVIL ══ -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <!-- ══ SIDEBAR ══ -->
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -16,65 +19,63 @@
       <span class="logo-text">Pulse<span>AI</span></span>
     </div>
 
-    <div class="sidebar-section">
-      <p class="sidebar-label">Mi cobertura</p>
-      <p class="patient-name" id="patientName"><span class="skeleton sk-line"></span></p>
-      <p class="patient-id"   id="patientId"><span class="skeleton sk-line-sm"></span></p>
+    <!-- área scrollable — solo esta parte hace scroll -->
+    <div class="sidebar-scroll">
 
-      <div class="status-row">
-        <span class="status-badge" id="statusBadge">
-          <span class="status-dot"></span>Cargando…
-        </span>
-        <span class="aseguradora-badge" id="aseguradoraBadge" style="display:none"></span>
+      <div class="sidebar-section">
+        <p class="sidebar-label">Mi cobertura</p>
+        <p class="patient-name" id="patientName"><span class="skeleton sk-line"></span></p>
+        <p class="patient-id"   id="patientId"><span class="skeleton sk-line-sm"></span></p>
+
+        <div class="status-row">
+          <span class="status-badge" id="statusBadge">
+            <span class="status-dot"></span>Cargando…
+          </span>
+          <span class="aseguradora-badge" id="aseguradoraBadge" style="display:none"></span>
+        </div>
+
+        <p class="plan-label">Plan</p>
+        <p class="plan-name" id="planName"><span class="skeleton sk-line-sm"></span></p>
+
+        <div class="copago-chips">
+          <div class="copago-chip">
+            <span class="chip-label">Consulta general</span>
+            <span class="chip-value green" id="copagoConsulta">—</span>
+          </div>
+          <div class="copago-chip">
+            <span class="chip-label">Especialista</span>
+            <span class="chip-value green" id="copagoEspec">—</span>
+          </div>
+          <div class="copago-chip">
+            <span class="chip-label">Emergencia</span>
+            <span class="chip-value orange" id="copagoEmerg">—</span>
+          </div>
+          <div class="copago-chip">
+            <span class="chip-label">Deducible anual</span>
+            <span class="chip-value muted" id="deducible">—</span>
+          </div>
+        </div>
       </div>
 
-      <p class="plan-label">Plan</p>
-      <p class="plan-name" id="planName"><span class="skeleton sk-line-sm"></span></p>
-
-      <div class="copago-chips">
-        <div class="copago-chip">
-          <span class="chip-label">Consulta general</span>
-          <span class="chip-value green" id="copagoConsulta">—</span>
-        </div>
-        <div class="copago-chip">
-          <span class="chip-label">Especialista</span>
-          <span class="chip-value green" id="copagoEspec">—</span>
-        </div>
-        <div class="copago-chip">
-          <span class="chip-label">Emergencia</span>
-          <span class="chip-value orange" id="copagoEmerg">—</span>
-        </div>
-        <div class="copago-chip">
-          <span class="chip-label">Deducible anual</span>
-          <span class="chip-value muted" id="deducible">—</span>
-        </div>
+      <div class="sidebar-section" id="coberturasSection" style="display:none">
+        <p class="sidebar-label">Coberturas activas</p>
+        <div class="coverage-tags" id="coverageTags"></div>
       </div>
-    </div>
 
-    <div class="sidebar-section" id="coberturasSection" style="display:none">
-      <p class="sidebar-label">Coberturas activas</p>
-      <div class="coverage-tags" id="coverageTags"></div>
-    </div>
-
-    <div class="sidebar-section" id="historialSection" style="display:none">
-      <p class="sidebar-label">Consultas anteriores</p>
-      <div class="history-list" id="historyList"></div>
-    </div>
-
-    <div class="sidebar-section">
-      <p class="sidebar-label">Preguntas frecuentes</p>
-      <div class="quick-btns" id="quickBtns">
-        <!-- generados por ui.js -->
+      <div class="sidebar-section" id="historialSection" style="display:none">
+        <p class="sidebar-label">Consultas anteriores</p>
+        <div class="history-list" id="historyList"></div>
       </div>
-    </div>
 
+    </div><!-- /sidebar-scroll -->
+
+    <!-- footer siempre visible al fondo -->
     <div class="sidebar-footer">
       <div class="footer-status" id="footerStatus">
         <span class="footer-dot loading"></span>
         <p>Conectando con Notion…</p>
       </div>
-      <!-- ══ BOTÓN CERRAR SESIÓN ══ -->
-      <button class="logout-btn" id="logoutBtn">⏻ Cerrar sesión</button>
+      <button class="logout-btn" id="logoutBtn"> Cerrar sesión</button>
     </div>
   </aside>
 
@@ -83,6 +84,9 @@
 
     <!-- solo visible en móvil -->
     <div class="mobile-bar">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" title="Abrir panel">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+      </button>
       <span class="logo-icon" style="color:#fff">◎</span>
       <span class="mobile-logo-text">PulseAI</span>
       <button class="mobile-policy" id="mobilePolicyBtn">Ver mi póliza</button>
@@ -194,7 +198,7 @@
 
     resetTimer();
 
-    // ── SIDEBAR TOGGLE ─────────────────────────────────────────
+    // ── SIDEBAR TOGGLE (escritorio) ────────────────────────────
     const sidebar = document.querySelector('.sidebar');
     const toggleBtn = document.getElementById('sidebarToggle');
     if (localStorage.getItem('sidebarCollapsed') === 'true') {
@@ -204,6 +208,44 @@
       sidebar.classList.toggle('collapsed');
       localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
     });
+
+    // ── SIDEBAR DRAWER MÓVIL ───────────────────────────────────
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const menuBtn  = document.getElementById('mobileMenuBtn');
+
+    function openMobileSidebar() {
+      sidebar.classList.add('mobile-open');
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileSidebar() {
+      sidebar.classList.remove('mobile-open');
+      backdrop.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.contains('mobile-open') ? closeMobileSidebar() : openMobileSidebar();
+    });
+    backdrop.addEventListener('click', closeMobileSidebar);
+
+    // Cerrar al hacer clic en un ítem del historial
+    sidebar.addEventListener('click', (e) => {
+      if (window.innerWidth <= 640 && e.target.closest('.history-item-content')) {
+        setTimeout(closeMobileSidebar, 150);
+      }
+    });
+
+    // Swipe derecha (desde borde izquierdo) = abrir; swipe izquierda = cerrar
+    let _swipeX = 0;
+    document.addEventListener('touchstart', (e) => {
+      _swipeX = e.touches[0].clientX;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - _swipeX;
+      if (_swipeX < 30 && dx > 60) openMobileSidebar();
+      if (dx < -60 && sidebar.classList.contains('mobile-open')) closeMobileSidebar();
+    }, { passive: true });
   });
 </script>
 </body>

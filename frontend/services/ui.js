@@ -11,7 +11,6 @@ const UI = {
 
     this.populateSidebar(policy);
     this.renderWelcome();
-    this.renderQuickButtons();
     this.setupMobilePolicy();
     this.setupClearBtn();
     this.loadHistory(policy.id);
@@ -173,7 +172,7 @@ const UI = {
       `<span class="footer-dot ${esc(type)}"></span><p>${esc(text)}</p>`;
   },
 
-  // ── Bienvenida ────────────────────────────────────────────────
+  // ── Bienvenida + chips de sugerencias ────────────────────────
   renderWelcome() {
     const msgs = document.getElementById("messages");
     msgs.insertAdjacentHTML("beforeend",
@@ -189,14 +188,14 @@ const UI = {
         </div>`
       )
     );
-  },
-
-  // ── Botones rápidos ───────────────────────────────────────────
-  renderQuickButtons() {
-    const container = document.getElementById("quickBtns");
-    container.innerHTML = CONFIG.QUICK_QUESTIONS
-      .map(q => `<button class="quick-btn" onclick="Chat.sendQuick('${q}')">${q}</button>`)
-      .join("");
+    // Chips de sugerencias rápidas en el chat
+    msgs.insertAdjacentHTML("beforeend", `
+      <div class="quick-suggestions" id="quickSuggestions">
+        ${CONFIG.QUICK_QUESTIONS.map(q =>
+          `<button class="quick-chip" onclick="Chat.sendQuick('${q}')">${q}</button>`
+        ).join("")}
+      </div>
+    `);
   },
 
   // ── Botón "Nueva consulta" ────────────────────────────────────
