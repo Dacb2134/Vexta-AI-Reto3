@@ -1,6 +1,6 @@
 # ◎ PulseAI — Estimador de Copago y Cobertura
 
-> **hackIAthon VIAMATICA 2024 · Reto 3**  
+> **hackIAthon VIAMATICA · Reto 3**  
 > Agente conversacional que ayuda al paciente a entender su cobertura médica antes de atenderse.
 
 ---
@@ -22,7 +22,7 @@ El paciente ingresa su cédula y describe su síntoma en lenguaje natural. Pulse
 |------|-----------|
 | Frontend | HTML + CSS + JS puro (MVC) |
 | Backend | Python + FastAPI |
-| Agente IA | Google Gemini 2.5 Flash |
+| Agente IA | gemini 3.1 flash lite |
 | Base de datos | Notion API (3 tablas) |
 | Deploy backend | Railway |
 | Deploy frontend | Vercel |
@@ -35,6 +35,15 @@ El paciente ingresa su cédula y describe su síntoma en lenguaje natural. Pulse
 📁 **Repositorio:** https://github.com/Dacb2134/Vexta-AI-Reto3
 
 ---
+## Usuarios de prueba
+ 
+Ingresar con cualquiera de estas cédulas en la pantalla de login:
+ 
+| Cédula | Nombre | Plan |
+|--------|--------|------|
+| `1712345678` | Ana Torres | Premium Gold |
+| `1798765432` | Roberto Mendoza | Estándar |
+| `1756781234` | Carmen Vega | Básico |
 
 ## Setup local
 
@@ -46,8 +55,8 @@ cd Vexta-AI-Reto3
 # 2. Entrar a backend
 cd backend
 
-# 3. Crear entorno virtual
-python -m venv venv
+# 3. Crear entorno virtual con Python 3.11 (IMPORTANTE: no usar 3.12 ni 3.13)
+py -3.11 -m venv venv
 
 # 4. Activar entorno virtual
 venv\Scripts\activate        # Windows
@@ -55,6 +64,9 @@ source venv/bin/activate     # Mac/Linux
 
 # 5. Instalar dependencias
 pip install -r requirements.txt
+# ⚠️ IMPORTANTE: Este proyecto requiere Python 3.11
+# Con Python 3.12+ fallará la instalación de pydantic
+# Verificar versión: python --version
 
 # 6. Crear archivo .env
 cp ../.env.example .env
